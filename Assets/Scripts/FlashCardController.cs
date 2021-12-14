@@ -49,6 +49,8 @@ public class FlashCardController : MonoBehaviour
 
     public int totalToComplete = 15;
 
+    public float chanceOfDifficultNotes = .08f;
+
     public int currentNote;
 
     private int previousNote;
@@ -127,6 +129,8 @@ public class FlashCardController : MonoBehaviour
 
     private void SetNotePosition()
     {
+        usingBass = false;
+
         //disable all note ledgers
         foreach (Transform child in note.transform)
         {
@@ -142,13 +146,12 @@ public class FlashCardController : MonoBehaviour
 
         if (useBassClef)
         {
-            if (Random.value > .65f)
+            if (Random.value > .6f)
             {
                 usingBass = true;
 
-                if (Random.value > .1f)
+                if (Random.value > chanceOfDifficultNotes)
                 {
-                    print("easy");
                     notes = new List<int>(easyNotesBass);
                 }
                 else
@@ -162,9 +165,8 @@ public class FlashCardController : MonoBehaviour
             else
             {
                 usingBass = false;
-                if (Random.value > .1f)
+                if (Random.value > chanceOfDifficultNotes)
                 {
-                    print("easy");
                     notes = new List<int>(easyNotesTreble);
                 }
                 else
@@ -175,22 +177,6 @@ public class FlashCardController : MonoBehaviour
                     }
                 }
             }
-
-            //add even more randomness to ensure notes spawned is not super low on bass (it goes high C in bass to B then low C in treble to B most of the time)
-        }
-
-        Transform[] possibleSpawns;
-        if (usingBass)
-        {
-            clef.transform.GetChild(0).GetComponent<Image>().enabled = true;
-            clef.enabled = false;
-            possibleSpawns = noteSpawnsYBass;
-        }
-        else
-        {
-            clef.transform.GetChild(0).GetComponent<Image>().enabled = false;
-            clef.enabled = true;
-            possibleSpawns = noteSpawnsY;
         }
 
         while (previousNote == currentNote)
@@ -200,57 +186,56 @@ public class FlashCardController : MonoBehaviour
         }
         previousNote = currentNote;
 
+        // Transform[] possibleSpawns;
+        if (usingBass || currentNote < 24)
+        {
+            clef.transform.GetChild(0).GetComponent<Image>().enabled = true;
+            clef.enabled = false;
+            // possibleSpawns = noteSpawnsYBass;
+        }
+        else
+        {
+            clef.transform.GetChild(0).GetComponent<Image>().enabled = false;
+            clef.enabled = true;
+            // possibleSpawns = noteSpawnsY;
+        }
+
+        if (currentNote >= 24)
+        {
+            clef.transform.GetChild(0).GetComponent<Image>().enabled = false;
+            clef.enabled = true;
+        }
+
         note.transform.localPosition =
             new Vector2(note.transform.localPosition.x,
-                possibleSpawns[currentNote].localPosition.y);
+                noteSpawnsY[currentNote].localPosition.y);
 
         string clefName = usingBass ? "bass_" : "treble_";
         resultsController.questions[totalCorrect].noteName =
             clefName + noteNames[currentNote % 12];
 
-        if (currentNote == 0 || currentNote == 4 && usingBass)
+        //this needs to allow for starting midi number pls
+        switch (currentNote)
         {
-            note.transform.GetChild(0).gameObject.SetActive(true);
-        }
-        else
-            note.transform.GetChild(0).gameObject.SetActive(false);
-
-        if (usingBass)
-        {
-            switch (currentNote)
-            {
-                case 0:
-                    //middle and high above = true
-                    note.transform.GetChild(0).gameObject.SetActive(true);
-                    note.transform.GetChild(3).gameObject.SetActive(true);
-                    break;
-                case 2:
-                    //high = true
-                    note.transform.GetChild(2).gameObject.SetActive(true);
-                    break;
-                case 4:
-                    //middle = true;
-                    note.transform.GetChild(0).gameObject.SetActive(true);
-                    break;
-            }
-        }
-        else
-        {
-            switch (currentNote)
-            {
-                case 0:
-                    //middle  = true
-                    note.transform.GetChild(0).gameObject.SetActive(true);
-                    break;
-                case 21:
-                    //middle = true
-                    note.transform.GetChild(0).gameObject.SetActive(true);
-                    break;
-                case 23:
-                    //below = true;
-                    note.transform.GetChild(1).gameObject.SetActive(true);
-                    break;
-            }
+            case 0:
+                //middle and high above = true
+                note.transform.GetChild(0).gameObject.SetActive(true);
+                note.transform.GetChild(3).gameObject.SetActive(true);
+                break;
+            case 2:
+                //high = true
+                note.transform.GetChild(2).gameObject.SetActive(true);
+                break;
+            case 4:
+            case 24:
+            case 45:
+                //middle  = true
+                note.transform.GetChild(0).gameObject.SetActive(true);
+                break;
+            case 47:
+                //below = true;
+                note.transform.GetChild(1).gameObject.SetActive(true);
+                break;
         }
     }
 
@@ -264,6 +249,7 @@ public class FlashCardController : MonoBehaviour
             //if currentNote is below 11?
             // if (usingBass && currentQuestionIncorrects <= 0) currentNote -= 12;
             note -= MIDIController.startingMIDINumber;
+            print (note);
             if (note == currentNote)
             {
                 questionPosed = false;
