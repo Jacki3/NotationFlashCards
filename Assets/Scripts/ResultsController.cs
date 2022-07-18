@@ -43,6 +43,8 @@ public class ResultsController : MonoBehaviour
     void Update()
     {
         if (totalTimerStarted) totalTime += Time.deltaTime;
+
+        if (Input.GetKeyUp(KeyCode.R)) ShowStats();
     }
 
     public void StartTotalTimer() =>
@@ -65,6 +67,8 @@ public class ResultsController : MonoBehaviour
             testState +
             "_" +
             totalTestsRun +
+            "_" +
+            DateTime.Now +
             ",");
 
         foreach (Question question in questions)

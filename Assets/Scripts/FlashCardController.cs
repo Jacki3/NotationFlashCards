@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -19,6 +20,8 @@ public class FlashCardController : MonoBehaviour
     public Image clef;
 
     public Camera gameCamera;
+
+    public int questionIndex;
 
     public int[] possibleNotes;
 
@@ -47,11 +50,15 @@ public class FlashCardController : MonoBehaviour
     [Header("Game Settings")]
     public bool useBassClef;
 
-    public int totalToComplete = 15;
+    public float chanceOfBass = .6f;
 
     public float chanceOfDifficultNotes = .08f;
 
-    public int currentNote;
+    public int answerStreak = 0;
+
+    private int totalToComplete = 15;
+
+    private int currentNote;
 
     private int previousNote;
 
@@ -84,6 +91,7 @@ public class FlashCardController : MonoBehaviour
 
     void Start()
     {
+        totalToComplete = possibleNotes.Count();
         timer.enabled = false;
         note.enabled = false;
         timerText.enabled = false;
@@ -144,48 +152,47 @@ public class FlashCardController : MonoBehaviour
 
         List<int> notes = new List<int>(possibleNotes);
 
-        if (useBassClef)
-        {
-            if (Random.value > .6f)
-            {
-                usingBass = true;
+        // if (useBassClef)
+        // {
+        //     if (Random.value > chanceOfBass)
+        //     {
+        //         usingBass = true;
+        //         if (Random.value > chanceOfDifficultNotes)
+        //         {
+        //             notes = new List<int>(easyNotesBass);
+        //         }
+        //         else
+        //         {
+        //             foreach (int note in easyNotesBass)
+        //             {
+        //                 notes.Remove (note);
+        //             }
+        //         }
+        //     }
+        //     else
+        //     {
+        //         usingBass = false;
+        //         if (Random.value > chanceOfDifficultNotes)
+        //         {
+        //             notes = new List<int>(easyNotesTreble);
+        //         }
+        //         else
+        //         {
+        //             foreach (int note in easyNotesTreble)
+        //             {
+        //                 notes.Remove (note);
+        //             }
+        //         }
+        //     }
+        // }
+        // while (previousNote == currentNote)
+        // {
+        //     int randIndex = Random.Range(0, notes.Count);
+        // }
+        currentNote = notes[questionIndex];
+        if (questionIndex < notes.Count - 1) questionIndex++;
 
-                if (Random.value > chanceOfDifficultNotes)
-                {
-                    notes = new List<int>(easyNotesBass);
-                }
-                else
-                {
-                    foreach (int note in easyNotesBass)
-                    {
-                        notes.Remove (note);
-                    }
-                }
-            }
-            else
-            {
-                usingBass = false;
-                if (Random.value > chanceOfDifficultNotes)
-                {
-                    notes = new List<int>(easyNotesTreble);
-                }
-                else
-                {
-                    foreach (int note in easyNotesTreble)
-                    {
-                        notes.Remove (note);
-                    }
-                }
-            }
-        }
-
-        while (previousNote == currentNote)
-        {
-            int randIndex = Random.Range(0, notes.Count);
-            currentNote = notes[randIndex];
-        }
-        previousNote = currentNote;
-
+        // previousNote = currentNote;
         // Transform[] possibleSpawns;
         if (usingBass || currentNote < 24)
         {
@@ -249,7 +256,6 @@ public class FlashCardController : MonoBehaviour
             //if currentNote is below 11?
             // if (usingBass && currentQuestionIncorrects <= 0) currentNote -= 12;
             note -= MIDIController.startingMIDINumber;
-            print (note);
             if (note == currentNote)
             {
                 questionPosed = false;
@@ -272,11 +278,15 @@ public class FlashCardController : MonoBehaviour
                 }
                 else
                 {
+                    answerStreak++;
+                    chanceOfDifficultNotes += .002f;
                     SetNotePosition();
                 }
             }
             else
             {
+                answerStreak = 0;
+                chanceOfDifficultNotes = .08f;
                 resultsController
                     .questions[totalCorrect]
                     .totalIncorrectGuesses++;
