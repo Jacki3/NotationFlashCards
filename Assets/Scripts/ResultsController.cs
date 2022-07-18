@@ -24,6 +24,10 @@ public class ResultsController : MonoBehaviour
 
     public TextMeshProUGUI questionResults;
 
+    public TextMeshProUGUI warningText;
+
+    public TMP_InputField indexField;
+
     private bool totalTimerStarted;
 
     [System.Serializable]
@@ -145,5 +149,20 @@ public class ResultsController : MonoBehaviour
     public void ChangeRuns(TMP_InputField index)
     {
         totalTestsRun = int.Parse(index.text);
+    }
+
+    public bool UserIndexFilled()
+    {
+        if (indexField.text.Length == indexField.characterLimit)
+        {
+            warningText.enabled = false;
+            return true;
+        }
+        else
+        {
+            warningText.enabled = true;
+            warningText.text = "Please fill out user index";
+            return false;
+        }
     }
 }

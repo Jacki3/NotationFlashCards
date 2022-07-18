@@ -47,6 +47,10 @@ public class FlashCardController : MonoBehaviour
 
     public TextMeshProUGUI endText;
 
+    public Button playButton;
+
+    public Button exitButton;
+
     [Header("Game Settings")]
     public bool useBassClef;
 
@@ -107,10 +111,7 @@ public class FlashCardController : MonoBehaviour
     {
         if (Input.GetKeyUp(KeyCode.Space))
         {
-            endText.enabled = false;
-            timer.enabled = true;
-            timer.StartTimer();
-            timerText.enabled = true;
+            StartTest();
         }
 
         if (timer.TimeUp() && !gameStarted && timer.enabled)
@@ -133,6 +134,18 @@ public class FlashCardController : MonoBehaviour
         if (questionPosed) timeTakenToAnswer += Time.deltaTime;
 
         if (Input.GetKey(KeyCode.Escape)) Application.Quit();
+    }
+
+    public void StartTest()
+    {
+        if (resultsController.UserIndexFilled())
+        {
+            endText.enabled = false;
+            playButton.gameObject.SetActive(false);
+            timer.enabled = true;
+            timer.StartTimer();
+            timerText.enabled = true;
+        }
     }
 
     private void SetNotePosition()
@@ -273,7 +286,8 @@ public class FlashCardController : MonoBehaviour
                     resultsController.ShowStats();
                     audioSource.PlayOneShot (winSound);
                     gameStarted = false;
-                    endText.text = "Test Complete";
+                    endText.text = "Test Complete \n\n Press ESC to exit";
+                    exitButton.gameObject.SetActive(true);
                     endText.enabled = true;
                 }
                 else
@@ -304,6 +318,11 @@ public class FlashCardController : MonoBehaviour
     public void UpdateTotal(TMP_InputField index)
     {
         totalToComplete = int.Parse(index.text);
+    }
+
+    public void Exit()
+    {
+        Application.Quit();
     }
 
     private bool Complete() => totalCorrect >= totalToComplete;
