@@ -9,7 +9,7 @@ public class ResultsController : MonoBehaviour
     [Header("Results")]
     public CSVWriter csvWriter;
 
-    public static int userIndex;
+    public static string userIndex;
 
     public static int totalTestsRun;
 
@@ -134,11 +134,8 @@ public class ResultsController : MonoBehaviour
         csvWriter.WriteCSV(totalErrors + ",");
         csvWriter.WriteCSV (formattedErrorAvg);
         csvWriter.WriteCSV(System.Environment.NewLine);
-    }
 
-    public void ChangeUserIndex(TMP_InputField index)
-    {
-        userIndex = int.Parse(index.text);
+        csvWriter.UploadResults();
     }
 
     public void ChangeTestType()
@@ -156,6 +153,7 @@ public class ResultsController : MonoBehaviour
         if (indexField.text.Length == indexField.characterLimit)
         {
             warningText.enabled = false;
+            userIndex = indexField.text;
             return true;
         }
         else

@@ -80,6 +80,8 @@ public class FlashCardController : MonoBehaviour
 
     private bool usingBass = false;
 
+    private bool testFinished = false;
+
     private string[]
         noteNames =
         { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
@@ -109,10 +111,22 @@ public class FlashCardController : MonoBehaviour
 
     void Update()
     {
+        if (PlayerPrefs.GetInt("Complete") == 1)
+        {
+            testFinished = true;
+            gameStarted = false;
+            endText.color = Color.black;
+            endText.text =
+                "Test Complete \n\n Press ESC to exit \n\n If This is Incorrect, Please Contact the Research Team";
+            exitButton.gameObject.SetActive(true);
+            endText.enabled = true;
+        }
         if (Input.GetKeyUp(KeyCode.Space))
         {
-            StartTest();
+            if (!testFinished) StartTest();
         }
+
+        if (Input.GetKeyUp(KeyCode.L)) PlayerPrefs.SetInt("Complete", 0);
 
         if (timer.TimeUp() && !gameStarted && timer.enabled)
         {
@@ -123,12 +137,6 @@ public class FlashCardController : MonoBehaviour
             resultsController.StartTotalTimer();
         }
 
-        if (Input.GetKeyUp(KeyCode.R))
-        {
-            MIDIController.NoteOn -= CheckCorrectNote;
-            MIDIController.NoteOff -= NoteOff;
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-        }
         timerText.text = timer.DisplayTime(timer.timeRemaining);
 
         if (questionPosed) timeTakenToAnswer += Time.deltaTime;
@@ -165,59 +173,18 @@ public class FlashCardController : MonoBehaviour
 
         List<int> notes = new List<int>(possibleNotes);
 
-        // if (useBassClef)
-        // {
-        //     if (Random.value > chanceOfBass)
-        //     {
-        //         usingBass = true;
-        //         if (Random.value > chanceOfDifficultNotes)
-        //         {
-        //             notes = new List<int>(easyNotesBass);
-        //         }
-        //         else
-        //         {
-        //             foreach (int note in easyNotesBass)
-        //             {
-        //                 notes.Remove (note);
-        //             }
-        //         }
-        //     }
-        //     else
-        //     {
-        //         usingBass = false;
-        //         if (Random.value > chanceOfDifficultNotes)
-        //         {
-        //             notes = new List<int>(easyNotesTreble);
-        //         }
-        //         else
-        //         {
-        //             foreach (int note in easyNotesTreble)
-        //             {
-        //                 notes.Remove (note);
-        //             }
-        //         }
-        //     }
-        // }
-        // while (previousNote == currentNote)
-        // {
-        //     int randIndex = Random.Range(0, notes.Count);
-        // }
         currentNote = notes[questionIndex];
         if (questionIndex < notes.Count - 1) questionIndex++;
 
-        // previousNote = currentNote;
-        // Transform[] possibleSpawns;
         if (usingBass || currentNote < 24)
         {
             clef.transform.GetChild(0).GetComponent<Image>().enabled = true;
             clef.enabled = false;
-            // possibleSpawns = noteSpawnsYBass;
         }
         else
         {
             clef.transform.GetChild(0).GetComponent<Image>().enabled = false;
             clef.enabled = true;
-            // possibleSpawns = noteSpawnsY;
         }
 
         if (currentNote >= 24)
@@ -266,8 +233,6 @@ public class FlashCardController : MonoBehaviour
             var currentQuestionIncorrects =
                 resultsController.questions[totalCorrect].totalIncorrectGuesses;
 
-            //if currentNote is below 11?
-            // if (usingBass && currentQuestionIncorrects <= 0) currentNote -= 12;
             note -= MIDIController.startingMIDINumber;
             if (note == currentNote)
             {
@@ -284,6 +249,7 @@ public class FlashCardController : MonoBehaviour
                 {
                     resultsController.StartTotalTimer();
                     resultsController.ShowStats();
+                    PlayerPrefs.SetInt("Complete", 1);
                     audioSource.PlayOneShot (winSound);
                     gameStarted = false;
                     endText.text = "Test Complete \n\n Press ESC to exit";
