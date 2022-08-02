@@ -47,8 +47,6 @@ public class ResultsController : MonoBehaviour
     void Update()
     {
         if (totalTimerStarted) totalTime += Time.deltaTime;
-
-        if (Input.GetKeyUp(KeyCode.R)) ShowStats();
     }
 
     public void StartTotalTimer() =>
@@ -63,6 +61,7 @@ public class ResultsController : MonoBehaviour
         totalTimeText.text = "Total Time to Complete: " + formattedTotalTime;
 
         string testState = preTest ? "preTest" : "postTest";
+        csvWriter.testState = testState;
 
         csvWriter
             .WriteCSV("User_" +
@@ -136,6 +135,7 @@ public class ResultsController : MonoBehaviour
         csvWriter.WriteCSV(System.Environment.NewLine);
 
         csvWriter.UploadResults();
+        csvWriter.ScreenGrab();
     }
 
     public void ChangeTestType()

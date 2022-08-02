@@ -8,6 +8,7 @@ using UnityEngine.UI;
 
 public class FlashCardController : MonoBehaviour
 {
+    //have a playthrough and ensure it all works - begin to setup notes
     [Header("Game Elements")]
     public ResultsController resultsController;
 
@@ -51,6 +52,14 @@ public class FlashCardController : MonoBehaviour
 
     public Button exitButton;
 
+    public TMP_InputField indexField;
+
+    public GameObject helpScreen;
+
+    public TextMeshProUGUI helpButtonText;
+
+    public TextMeshProUGUI titleText;
+
     [Header("Game Settings")]
     public bool useBassClef;
 
@@ -82,6 +91,10 @@ public class FlashCardController : MonoBehaviour
 
     private bool testFinished = false;
 
+    private bool helpShown;
+
+    private string defaultTitleText;
+
     private string[]
         noteNames =
         { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
@@ -102,6 +115,7 @@ public class FlashCardController : MonoBehaviour
         note.enabled = false;
         timerText.enabled = false;
         scoreText.text = totalCorrect + "/" + totalToComplete;
+        defaultTitleText = titleText.text;
 
         for (int i = 0; i < totalToComplete; i++)
         {
@@ -118,12 +132,9 @@ public class FlashCardController : MonoBehaviour
             endText.color = Color.black;
             endText.text =
                 "Test Complete \n\n Press ESC to exit \n\n If This is Incorrect, Please Contact the Research Team";
-            exitButton.gameObject.SetActive(true);
             endText.enabled = true;
-        }
-        if (Input.GetKeyUp(KeyCode.Space))
-        {
-            if (!testFinished) StartTest();
+            playButton.gameObject.SetActive(false);
+            indexField.gameObject.SetActive(false);
         }
 
         if (Input.GetKeyUp(KeyCode.L)) PlayerPrefs.SetInt("Complete", 0);
@@ -150,6 +161,7 @@ public class FlashCardController : MonoBehaviour
         {
             endText.enabled = false;
             playButton.gameObject.SetActive(false);
+            indexField.gameObject.SetActive(false);
             timer.enabled = true;
             timer.StartTimer();
             timerText.enabled = true;
@@ -253,7 +265,6 @@ public class FlashCardController : MonoBehaviour
                     audioSource.PlayOneShot (winSound);
                     gameStarted = false;
                     endText.text = "Test Complete \n\n Press ESC to exit";
-                    exitButton.gameObject.SetActive(true);
                     endText.enabled = true;
                 }
                 else
@@ -284,6 +295,24 @@ public class FlashCardController : MonoBehaviour
     public void UpdateTotal(TMP_InputField index)
     {
         totalToComplete = int.Parse(index.text);
+    }
+
+    public void ShowHelpScreen()
+    {
+        if (!helpShown)
+        {
+            helpShown = true;
+            helpScreen.SetActive(true);
+            helpButtonText.text = "Back";
+            titleText.text = "Help Screen";
+        }
+        else
+        {
+            helpShown = false;
+            helpScreen.SetActive(false);
+            helpButtonText.text = "Help";
+            titleText.text = defaultTitleText;
+        }
     }
 
     public void Exit()

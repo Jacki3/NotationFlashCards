@@ -144,6 +144,24 @@ class ftp
         return;
     }
 
+    public void UploadImage(string target, string remotePath)
+    {
+        ftpRequest =
+            (FtpWebRequest) FtpWebRequest.Create(host + "/" + remotePath);
+
+        /* Log in to the FTP Server with the User Name and Password Provided */
+        ftpRequest.Credentials = new NetworkCredential(user, pass);
+        ftpRequest.UseBinary = true;
+        ftpRequest.Method = WebRequestMethods.Ftp.UploadFile;
+
+        byte[] fileData = File.ReadAllBytes(target);
+
+        ftpRequest.ContentLength = fileData.Length;
+        Stream reqStream = ftpRequest.GetRequestStream();
+        reqStream.Write(fileData, 0, fileData.Length);
+        reqStream.Close();
+    }
+
     /* Delete File */
     public void delete(string deleteFile)
     {
