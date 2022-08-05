@@ -9,6 +9,7 @@ using UnityEngine.UI;
 public class FlashCardController : MonoBehaviour
 {
     //have a playthrough and ensure it all works - begin to setup notes
+    //IF TIME: add voice over countdown
     [Header("Game Elements")]
     public ResultsController resultsController;
 
@@ -137,8 +138,6 @@ public class FlashCardController : MonoBehaviour
             indexField.gameObject.SetActive(false);
         }
 
-        if (Input.GetKeyUp(KeyCode.L)) PlayerPrefs.SetInt("Complete", 0);
-
         if (timer.TimeUp() && !gameStarted && timer.enabled)
         {
             timer.enabled = false;
@@ -255,7 +254,6 @@ public class FlashCardController : MonoBehaviour
                 scoreText.text = totalCorrect + "/" + totalToComplete;
 
                 audioSource.PlayOneShot (rightSound);
-                audioSource.pitch += .1f;
                 cameraAnimator.SetTrigger("Right");
                 if (Complete())
                 {

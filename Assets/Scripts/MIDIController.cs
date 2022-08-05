@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using MidiJack;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -29,8 +28,7 @@ public class MIDIController : MonoBehaviour
 
             midiDevice.onWillNoteOn += (note, velocity) =>
             {
-                print(note.noteNumber);
-                helmController.NoteOn(note.noteNumber, velocity);
+                // helmController.NoteOn(note.noteNumber, velocity);
                 NoteOn(note.noteNumber);
             };
 
