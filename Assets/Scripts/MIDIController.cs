@@ -28,7 +28,7 @@ public class MIDIController : MonoBehaviour
 
             midiDevice.onWillNoteOn += (note, velocity) =>
             {
-                // helmController.NoteOn(note.noteNumber, velocity);
+                helmController.NoteOn(note.noteNumber, velocity);
                 NoteOn(note.noteNumber);
             };
 
